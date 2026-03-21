@@ -1,6 +1,1 @@
-# Terminal 1 — Backend (ya corriendo en :3001)
-cd d:\FixtureMundial\backend
-node src/index.js
-# Terminal 2 — Frontend (ya corriendo en :5173)
-cd d:\FixtureMundial\frontend
-npm run dev
+
