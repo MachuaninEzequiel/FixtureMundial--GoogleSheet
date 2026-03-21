@@ -11,13 +11,13 @@ import './FixturePage.css';
 const LOCKOUT_BUFFER = 5 * 60; // 5 minutes
 
 const PHASES = [
-  { key: 'groups', label: 'Fase de Grupos', icon: '⚽' },
-  { key: 'round_of_32', label: '16avos de Final', icon: '🔥' },
-  { key: 'round_of_16', label: 'Octavos de Final', icon: '🔟' },
-  { key: 'quarterfinals', label: 'Cuartos de Final', icon: '🎯' },
-  { key: 'semifinals', label: 'Semifinales', icon: '⚡' },
-  { key: 'third_place', label: 'Tercer Puesto', icon: '🥉' },
-  { key: 'final', label: 'Gran Final', icon: '🏆' },
+  { key: 'groups', label: 'Fase de Grupos', icon: '' },
+  { key: 'round_of_32', label: '16avos de Final', icon: '' },
+  { key: 'round_of_16', label: 'Octavos de Final', icon: '' },
+  { key: 'quarterfinals', label: 'Cuartos de Final', icon: '' },
+  { key: 'semifinals', label: 'Semifinales', icon: '' },
+  { key: 'third_place', label: 'Tercer Puesto', icon: '' },
+  { key: 'final', label: 'Gran Final', icon: '' },
 ];
 
 function getOutcomeBadge(pred, match) {
@@ -53,8 +53,8 @@ function MatchCard({ match, onOpenModal }) {
 
   const matchDate = match.match_date
     ? new Date(match.match_date * 1000).toLocaleString('es-AR', {
-        weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit'
-      })
+      weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit'
+    })
     : 'Por confirmar';
 
   return (
