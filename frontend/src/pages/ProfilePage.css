@@ -1,0 +1,158 @@
+.profile-page { max-width: 800px; margin: 0 auto; padding: 32px 24px; }
+
+/* User card */
+.profile-card {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.profile-avatar-wrap { flex-shrink: 0; }
+
+.profile-avatar {
+  width: 72px; height: 72px;
+  border-radius: 50%;
+  background: var(--gradient-brand);
+  color: #000;
+  font-weight: 900; font-size: 2rem;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: var(--shadow-gold);
+}
+
+.profile-info { flex: 1; }
+.profile-username { font-size: 1.5rem; font-weight: 800; margin-bottom: 4px; }
+.profile-email { color: var(--color-text-secondary); font-size: 0.9rem; }
+
+.profile-points {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 12px 20px;
+  background: var(--color-gold-dim);
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(245,197,24,0.2);
+  flex-shrink: 0;
+}
+
+.profile-points-icon { color: var(--color-gold); }
+.profile-points-value { font-size: 2rem; font-weight: 900; color: var(--color-gold); line-height: 1; }
+.profile-points-label { font-size: 0.8rem; color: var(--color-text-secondary); }
+
+/* Stats grid */
+.profile-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px;
+  margin-bottom: 32px;
+}
+
+.stat-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  text-align: center;
+}
+
+.stat-green { border-color: rgba(34,197,94,0.2); background: var(--color-green-dim); }
+
+.stat-icon { font-size: 1.4rem; }
+.stat-value { font-size: 1.6rem; font-weight: 800; color: var(--color-text); }
+.stat-label { font-size: 0.75rem; color: var(--color-text-secondary); }
+.stat-green .stat-value { color: var(--color-green); }
+
+/* Predictions list */
+.predictions-heading {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 12px;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 0.8rem;
+}
+
+.predictions-list { display: flex; flex-direction: column; gap: 8px; }
+
+.pred-item {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.pred-item--correct {
+  border-color: rgba(34,197,94,0.3);
+  background: rgba(34,197,94,0.04);
+}
+
+.pred-item--wrong {
+  border-color: rgba(239,68,68,0.2);
+  background: rgba(239,68,68,0.03);
+}
+
+.pred-item-phase { display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
+.pred-group { font-size: 0.7rem; color: var(--color-text-muted); }
+
+.pred-item-teams {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+  font-size: 0.85rem;
+}
+
+.pred-flag { font-size: 1rem; }
+.pred-team { font-weight: 600; }
+.pred-team-b { text-align: right; }
+
+.pred-vs-score {
+  font-weight: 800;
+  font-size: 1rem;
+  color: var(--color-gold);
+  background: var(--color-gold-dim);
+  padding: 2px 10px;
+  border-radius: var(--radius-sm);
+  white-space: nowrap;
+}
+
+.pred-item-status {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  font-size: 0.8rem;
+  flex-shrink: 0;
+}
+
+.pred-pending { color: var(--color-text-muted); display: flex; align-items: center; gap: 4px; }
+.pred-correct { color: var(--color-green); display: flex; align-items: center; gap: 4px; font-weight: 700; }
+.pred-wrong { color: var(--color-red); display: flex; align-items: center; gap: 4px; }
+
+.pred-real-score { font-size: 0.72rem; color: var(--color-text-muted); }
+
+.predictions-empty {
+  text-align: center;
+  padding: 48px 24px;
+  color: var(--color-text-secondary);
+}
+
+.predictions-empty span { font-size: 3rem; display: block; margin-bottom: 12px; }
+
+@media (max-width: 640px) {
+  .profile-page { padding: 20px 16px; }
+  .profile-card { flex-direction: column; text-align: center; }
+  .profile-points { width: 100%; justify-content: center; }
+  .pred-item { flex-direction: column; align-items: flex-start; }
+  .pred-item-status { align-items: flex-start; }
+}

@@ -1,0 +1,119 @@
+.standings-wrapper {
+  margin-top: 16px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.standings-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+  text-align: center;
+}
+
+.standings-table th {
+  background: var(--color-surface-2);
+  padding: 8px 4px;
+  color: var(--color-text-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.th-team {
+  text-align: left;
+  padding-left: 12px;
+}
+
+.standings-table td {
+  padding: 8px 4px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.standings-table tr:last-child td {
+  border-bottom: none;
+}
+
+.st-pos {
+  font-weight: bold;
+  color: var(--color-text-muted);
+}
+
+.st-team {
+  text-align: left;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-left: 12px;
+}
+
+.st-team-name {
+  font-weight: 500;
+}
+
+.st-pts {
+  color: var(--color-primary);
+}
+
+.row-advancing {
+  background: rgba(30, 215, 96, 0.05); /* very faint green */
+}
+
+.row-third {
+  background: rgba(255, 193, 7, 0.05); /* faint yellow */
+}
+
+/* Tiebreaker Alert */
+.tiebreaker-alert {
+  background: rgba(239, 68, 68, 0.1);
+  padding: 12px;
+  border-top: 1px solid var(--color-border);
+}
+
+.tiebreaker-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--color-red);
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.tiebreaker-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.tiebreaker-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--color-surface);
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: grab;
+}
+
+.tiebreaker-item:active {
+  cursor: grabbing;
+}
+
+.drag-handle {
+  color: var(--color-text-muted);
+}
+
+.btn-tie-save {
+  margin-top: 12px;
+  width: 100%;
+}

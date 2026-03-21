@@ -1,0 +1,17 @@
+{
+  "name": "fixture-mundial-2026",
+  "version": "1.0.0",
+  "description": "Fixture Mundial 2026 — Vercel Serverless + Google Sheets",
+  "type": "commonjs",
+  "scripts": {
+    "dev:local": "npm run dev --prefix frontend",
+    "build": "cd frontend && npm install && npm run build",
+    "install:all": "npm install && cd frontend && npm install"
+  },
+
+  "dependencies": {
+    "dotenv": "^17.3.1",
+    "firebase-admin": "^12.7.0",
+    "googleapis": "^144.0.0"
+  }
+}

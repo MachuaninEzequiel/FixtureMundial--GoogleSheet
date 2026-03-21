@@ -1,0 +1,31 @@
+# Dependencias
+node_modules/
+frontend/node_modules/
+
+# Archivos de Entorno (secretos, credenciales)
+.env
+.env.local
+frontend/.env
+frontend/.env.local
+*-firebase-adminsdk-*.json
+proyectofixture*.json
+
+# Carpetas de Compilación
+frontend/dist/
+.tmp/
+
+# Logs
+npm-debug.log*
+yarn-error.log*
+
+# Archivos del SO
+.DS_Store
+Thumbs.db
+
+# La carpeta backend/ ya no existe — era SQLite/Express (eliminado)
+# Database SQLite (ya no se usa)
+*.db
+*.db-shm
+*.db-wal
+
+.vercel
