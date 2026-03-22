@@ -15,6 +15,7 @@ const PrivateTournamentPage = () => {
 
   const [activeView, setActiveView] = useState('list'); // 'list', 'create', 'join', 'detail'
   const [selectedTournament, setSelectedTournament] = useState(null);
+  const [isDescExpanded, setIsDescExpanded] = useState(false);
   const [rankingData, setRankingData] = useState([]);
   const [rankingLoading, setRankingLoading] = useState(false);
 
@@ -103,6 +104,7 @@ const PrivateTournamentPage = () => {
   const openTournament = async (t) => {
     setSelectedTournament(t);
     setActiveView('detail');
+    setIsDescExpanded(false);
     await loadTournamentRanking(t);
   };
 
@@ -236,7 +238,40 @@ const PrivateTournamentPage = () => {
             <Trophy className="td-icon" size={28} />
             <div>
               <h2>{selectedTournament.name}</h2>
-              {selectedTournament.description && <p className="td-desc">{selectedTournament.description}</p>}
+              {selectedTournament.description && (
+                <div className="td-desc-container">
+                  <p className="td-desc" style={{ 
+                    whiteSpace: 'pre-wrap', 
+                    marginTop: '8px', 
+                    marginBottom: '4px',
+                    lineHeight: '1.6',
+                    display: isDescExpanded ? 'block' : '-webkit-box',
+                    WebkitLineClamp: isDescExpanded ? 'unset' : 3,
+                    WebkitBoxOrient: 'vertical',
+                    overflow: 'hidden'
+                  }}>
+                    {selectedTournament.description}
+                  </p>
+                  {selectedTournament.description.length > 120 && (
+                    <button 
+                      type="button"
+                      style={{ 
+                        background: 'none', 
+                        border: 'none', 
+                        padding: 0, 
+                        color: 'var(--color-gold)', 
+                        fontSize: '0.85rem', 
+                        fontWeight: '600', 
+                        cursor: 'pointer',
+                        textDecoration: 'underline'
+                      }}
+                      onClick={() => setIsDescExpanded(!isDescExpanded)}
+                    >
+                      {isDescExpanded ? 'Ver menos' : 'Leer más...'}
+                    </button>
+                  )}
+                </div>
+              )}
             </div>
           </div>
           

@@ -17,7 +17,7 @@
       "destination": "/api/$1"
     },
     {
-      "source": "/(.*)",
+      "source": "/(login|ranking|simulacion|torneo-privado|perfil)(.*)",
       "destination": "/index.html"
     }
   ]

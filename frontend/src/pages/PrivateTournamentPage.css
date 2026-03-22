@@ -167,7 +167,7 @@
   padding: 24px;
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   flex-wrap: wrap;
   gap: 24px;
   margin-bottom: 24px;
@@ -176,8 +176,10 @@
 
 .td-title {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 16px;
+  flex: 1;
+  min-width: 250px;
 }
 
 .td-icon {
@@ -187,13 +189,19 @@
   border-radius: 12px;
   width: 52px;
   height: 52px;
+  flex-shrink: 0;
 }
 
 .td-title h2 {
-  font-size: 1.5rem;
-  font-weight: 700;
-  margin: 0 0 4px 0;
-  color: var(--color-text);
+  font-size: clamp(1.6rem, 5vw, 2.2rem);
+  font-weight: 800;
+  letter-spacing: 2px;
+  margin: 0 0 12px 0;
+  background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-transform: uppercase;
 }
 
 .td-desc {
@@ -209,6 +217,13 @@
   border-radius: var(--radius-md);
   text-align: center;
   min-width: 200px;
+}
+
+/* Match Ranking Global Width exactly */
+.tournament-ranking {
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .td-invite-label {
@@ -453,16 +468,21 @@
   /* Stack td-title cleanly on phones */
   .td-title {
     flex-direction: column;
+    align-items: center; /* This overrides flex-start so trophy centers! */
     text-align: center;
     width: 100%;
   }
 
   .td-title h2 {
-    font-size: 1.3rem;
+    font-size: 1.8rem;
+    margin-top: 4px;
+    margin-bottom: 8px;
   }
 
   .td-invite-box {
-    margin: 0 auto;
+    margin: 16px auto 0;
+    width: 100%;
+    max-width: 300px;
   }
 
   /* Make sure the create/join forms respond beautifully */
