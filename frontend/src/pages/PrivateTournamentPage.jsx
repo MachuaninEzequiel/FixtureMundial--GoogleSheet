@@ -140,7 +140,7 @@ const PrivateTournamentPage = () => {
   if (activeView === 'create') {
     return (
       <div className="page-container tournament-page page-content">
-        <button className="btn-ghost" style={{ border: 'none', marginBottom: '32px', paddingLeft: '0', display: 'inline-flex', alignItems: 'center', gap: '8px', fontSize: '1rem', fontWeight: '500' }} onClick={() => setActiveView('list')}>
+        <button className="btn-ghost" style={{ border: 'none', marginBottom: '32px', paddingLeft: '0', display: 'inline-flex', alignItems: 'center', gap: '8px', fontSize: '1rem', fontWeight: '500' }} onClick={() => { setActiveView('list'); setActionMessage({type:'', text:''}); }}>
           <ChevronLeft size={20} /> Volver
         </button>
         <div className="tournament-card animate-fade-in" style={{ maxWidth: '600px', margin: '0 auto' }}>
@@ -183,7 +183,7 @@ const PrivateTournamentPage = () => {
   if (activeView === 'join') {
     return (
       <div className="page-container tournament-page page-content">
-        <button className="btn-ghost" style={{ border: 'none', marginBottom: '32px', paddingLeft: '0', display: 'inline-flex', alignItems: 'center', gap: '8px', fontSize: '1rem', fontWeight: '500' }} onClick={() => setActiveView('list')}>
+        <button className="btn-ghost" style={{ border: 'none', marginBottom: '32px', paddingLeft: '0', display: 'inline-flex', alignItems: 'center', gap: '8px', fontSize: '1rem', fontWeight: '500' }} onClick={() => { setActiveView('list'); setActionMessage({type:'', text:''}); }}>
           <ChevronLeft size={20} /> Volver
         </button>
         <div className="tournament-card animate-fade-in" style={{ maxWidth: '600px', margin: '0 auto' }}>
