@@ -7,6 +7,7 @@ import FixturePage from './pages/FixturePage';
 import RankingPage from './pages/RankingPage';
 import ProfilePage from './pages/ProfilePage';
 import SimulacionPage from './pages/SimulacionPage';
+import PrivateTournamentPage from './pages/PrivateTournamentPage';
 
 function AppLayout({ children }) {
   return (
@@ -50,6 +51,11 @@ export default function App() {
           <Route path="/simulacion" element={
             <ProtectedRoute>
               <AppLayout><SimulacionPage /></AppLayout>
+            </ProtectedRoute>
+          } />
+          <Route path="/torneo-privado" element={
+            <ProtectedRoute>
+              <AppLayout><PrivateTournamentPage /></AppLayout>
             </ProtectedRoute>
           } />
           <Route path="/perfil" element={

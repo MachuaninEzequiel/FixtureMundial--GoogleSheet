@@ -43,4 +43,11 @@ export const rankingApi = {
   get: () => api.get('/ranking'),
 };
 
+export const tournamentsApi = {
+  create: (data) => api.post('/tournaments/create', data),
+  getAll: () => api.get('/tournaments/list'),
+  join: (data) => api.post('/tournaments/join', data),
+  getRanking: (id) => api.get(`/tournaments/ranking?id=${id}`),
+};
+
 export default api;

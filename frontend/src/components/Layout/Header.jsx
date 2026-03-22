@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Trophy, ListOrdered, User, LogOut, Globe, FlaskConical, Menu, X } from 'lucide-react';
+import { Trophy, ListOrdered, User, LogOut, Globe, FlaskConical, Menu, X, Users } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import './Header.css';
 
@@ -51,6 +51,9 @@ export default function Header() {
             </NavLink>
             <NavLink to="/simulacion" className={({ isActive }) => `nav-link nav-link--sim ${isActive ? 'active' : ''}`} onClick={closeMenu}>
               <FlaskConical size={16} /><span>Simulación</span>
+            </NavLink>
+            <NavLink to="/torneo-privado" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`} onClick={closeMenu}>
+              <Users size={16} /><span>Ligas Privadas</span>
             </NavLink>
             <NavLink to="/perfil" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`} onClick={closeMenu}>
               <User size={16} /><span>Perfil</span>
