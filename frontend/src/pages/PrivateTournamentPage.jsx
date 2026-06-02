@@ -1,7 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 import { tournamentsApi } from '../services/api';
-import { Trophy, Users, Plus, KeyRound, Copy, ChevronLeft, UserPlus, CheckCircle2 } from 'lucide-react';
+import {
+  Trophy, Users, Plus, KeyRound, Copy, ChevronLeft, UserPlus, CheckCircle2,
+  Pencil, Trash2, UserMinus, AlertTriangle, X, Save,
+} from 'lucide-react';
 import './RankingPage.css';
 import './PrivateTournamentPage.css';
 
@@ -23,11 +27,29 @@ const PrivateTournamentPage = () => {
   const [createData, setCreateData] = useState({ name: '', description: '' });
   const [joinCode, setJoinCode] = useState('');
   const [addEmailBuf, setAddEmailBuf] = useState('');
-  
+
+  // Edit league (owner ABM)
+  const [editMode, setEditMode] = useState(false);
+  const [editForm, setEditForm] = useState({ name: '', description: '' });
+  const [editLoading, setEditLoading] = useState(false);
+
+  // Delete league (modal)
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [deleteConfirmText, setDeleteConfirmText] = useState('');
+  const [deleteLoading, setDeleteLoading] = useState(false);
+
+  // Remove member in-flight
+  const [removingMember, setRemovingMember] = useState('');
+
   // Feedback states
   const [copiedCode, setCopiedCode] = useState('');
   const [actionLoading, setActionLoading] = useState(false);
   const [actionMessage, setActionMessage] = useState({ type: '', text: '' }); // type: 'success' | 'error'
+
+  const flash = (type, text, ms = 3000) => {
+    setActionMessage({ type, text });
+    setTimeout(() => setActionMessage({ type: '', text: '' }), ms);
+  };
 
   useEffect(() => {
     loadTournaments();
@@ -127,6 +149,100 @@ const PrivateTournamentPage = () => {
     setTimeout(() => setCopiedCode(''), 2000);
   };
 
+  const handleStartEdit = () => {
+    setEditForm({
+      name: selectedTournament.name || '',
+      description: selectedTournament.description || '',
+    });
+    setEditMode(true);
+    setActionMessage({ type: '', text: '' });
+  };
+
+  const handleCancelEdit = () => {
+    setEditMode(false);
+    setActionMessage({ type: '', text: '' });
+  };
+
+  const handleSaveEdit = async (e) => {
+    e?.preventDefault();
+    if (!editForm.name.trim()) {
+      setActionMessage({ type: 'error', text: 'El nombre del torneo no puede estar vacío.' });
+      return;
+    }
+    setEditLoading(true);
+    try {
+      const res = await tournamentsApi.update({
+        id: selectedTournament.id,
+        name: editForm.name.trim(),
+        description: editForm.description,
+      });
+      const updated = res.data.tournament;
+      // Preserve members from current local state (update endpoint also returns them)
+      setSelectedTournament((t) => ({ ...t, name: updated.name, description: updated.description }));
+      setTournaments((prev) =>
+        prev.map((t) => (t.id === selectedTournament.id ? { ...t, name: updated.name, description: updated.description } : t))
+      );
+      setEditMode(false);
+      flash('success', 'Torneo actualizado.');
+    } catch (err) {
+      setActionMessage({ type: 'error', text: err.response?.data?.error || 'Error al actualizar el torneo' });
+    } finally {
+      setEditLoading(false);
+    }
+  };
+
+  const handleRemoveMember = async (email) => {
+    if (!window.confirm(`¿Sacar a ${email} del torneo? Sus pronósticos globales no se borran, pero ya no aparecerá en este ranking privado.`)) return;
+    setRemovingMember(email);
+    try {
+      const res = await tournamentsApi.removeMember({
+        id: selectedTournament.id,
+        emailToRemove: email,
+      });
+      const newMembers = res.data.members;
+      setSelectedTournament((t) => ({ ...t, members: newMembers }));
+      setTournaments((prev) =>
+        prev.map((t) => (t.id === selectedTournament.id ? { ...t, members: newMembers } : t))
+      );
+      // Reflejar quita en el ranking local sin esperar al backend
+      setRankingData((prev) => prev.filter((r) => r.email?.toLowerCase() !== email.toLowerCase()));
+      flash('success', `${email} fue retirado del torneo.`);
+    } catch (err) {
+      setActionMessage({ type: 'error', text: err.response?.data?.error || 'Error al sacar al miembro' });
+    } finally {
+      setRemovingMember('');
+    }
+  };
+
+  const handleOpenDeleteModal = () => {
+    setDeleteConfirmText('');
+    setDeleteModalOpen(true);
+    setActionMessage({ type: '', text: '' });
+  };
+
+  const handleConfirmDelete = async (e) => {
+    e?.preventDefault();
+    setDeleteLoading(true);
+    try {
+      await tournamentsApi.delete({
+        id: selectedTournament.id,
+        confirmName: deleteConfirmText,
+      });
+      const deletedId = selectedTournament.id;
+      setTournaments((prev) => prev.filter((t) => t.id !== deletedId));
+      setDeleteModalOpen(false);
+      setDeleteConfirmText('');
+      setSelectedTournament(null);
+      setActiveView('list');
+      setRankingData([]);
+      flash('success', 'Torneo eliminado correctamente.');
+    } catch (err) {
+      setActionMessage({ type: 'error', text: err.response?.data?.error || 'Error al eliminar el torneo' });
+    } finally {
+      setDeleteLoading(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="page-container tournament-page page-content">
@@ -219,7 +335,9 @@ const PrivateTournamentPage = () => {
   // View: Detail (Ranking inside a Tournament)
   if (activeView === 'detail' && selectedTournament) {
     const isOwner = selectedTournament.ownerEmail.toLowerCase() === user.email.toLowerCase();
-    
+    const ownerEmailLc = selectedTournament.ownerEmail.toLowerCase();
+    const memberList = (selectedTournament.members || []).map((m) => m.trim()).filter(Boolean);
+
     return (
       <div className="page-container tournament-page page-content">
         <div className="tournament-header-nav">
@@ -227,6 +345,7 @@ const PrivateTournamentPage = () => {
             setSelectedTournament(null);
             setActiveView('list');
             setRankingData([]);
+            setEditMode(false);
             setActionMessage({type:'', text:''});
           }}>
             <ChevronLeft size={20} /> Mis Torneos
@@ -236,45 +355,94 @@ const PrivateTournamentPage = () => {
         <div className="tournament-detail-header animate-fade-in">
           <div className="td-title">
             <Trophy className="td-icon" size={28} />
-            <div>
-              <h2>{selectedTournament.name}</h2>
-              {selectedTournament.description && (
-                <div className="td-desc-container">
-                  <p className="td-desc" style={{ 
-                    whiteSpace: 'pre-wrap', 
-                    marginTop: '8px', 
-                    marginBottom: '4px',
-                    lineHeight: '1.6',
-                    display: isDescExpanded ? 'block' : '-webkit-box',
-                    WebkitLineClamp: isDescExpanded ? 'unset' : 3,
-                    WebkitBoxOrient: 'vertical',
-                    overflow: 'hidden'
-                  }}>
-                    {selectedTournament.description}
-                  </p>
-                  {selectedTournament.description.length > 120 && (
-                    <button 
-                      type="button"
-                      style={{ 
-                        background: 'none', 
-                        border: 'none', 
-                        padding: 0, 
-                        color: 'var(--color-gold)', 
-                        fontSize: '0.85rem', 
-                        fontWeight: '600', 
-                        cursor: 'pointer',
-                        textDecoration: 'underline'
-                      }}
-                      onClick={() => setIsDescExpanded(!isDescExpanded)}
-                    >
-                      {isDescExpanded ? 'Ver menos' : 'Leer más...'}
+            <div style={{ flex: 1, minWidth: 0 }}>
+              {editMode ? (
+                <form className="td-edit-form" onSubmit={handleSaveEdit}>
+                  <div className="form-group">
+                    <label>Nombre del Torneo</label>
+                    <input
+                      type="text"
+                      className="input"
+                      required
+                      value={editForm.name}
+                      onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+                      maxLength={80}
+                      autoFocus
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>Descripción</label>
+                    <textarea
+                      className="input"
+                      value={editForm.description}
+                      onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
+                      rows={3}
+                    />
+                  </div>
+                  <div className="td-edit-actions">
+                    <button type="button" className="btn-ghost btn-tourn-sm" onClick={handleCancelEdit} disabled={editLoading}>
+                      Cancelar
                     </button>
+                    <button type="submit" className="btn-tourn btn-create btn-tourn-sm" disabled={editLoading}>
+                      <Save size={14} /> {editLoading ? 'Guardando...' : 'Guardar'}
+                    </button>
+                  </div>
+                </form>
+              ) : (
+                <>
+                  <div className="td-title-row">
+                    <h2>{selectedTournament.name}</h2>
+                    {isOwner && (
+                      <button
+                        type="button"
+                        className="td-edit-btn"
+                        onClick={handleStartEdit}
+                        aria-label="Editar nombre y descripción"
+                        title="Editar"
+                      >
+                        <Pencil size={16} />
+                      </button>
+                    )}
+                  </div>
+                  {selectedTournament.description && (
+                    <div className="td-desc-container">
+                      <p className="td-desc" style={{
+                        whiteSpace: 'pre-wrap',
+                        marginTop: '8px',
+                        marginBottom: '4px',
+                        lineHeight: '1.6',
+                        display: isDescExpanded ? 'block' : '-webkit-box',
+                        WebkitLineClamp: isDescExpanded ? 'unset' : 3,
+                        WebkitBoxOrient: 'vertical',
+                        overflow: 'hidden'
+                      }}>
+                        {selectedTournament.description}
+                      </p>
+                      {selectedTournament.description.length > 120 && (
+                        <button
+                          type="button"
+                          style={{
+                            background: 'none',
+                            border: 'none',
+                            padding: 0,
+                            color: 'var(--color-gold)',
+                            fontSize: '0.85rem',
+                            fontWeight: '600',
+                            cursor: 'pointer',
+                            textDecoration: 'underline'
+                          }}
+                          onClick={() => setIsDescExpanded(!isDescExpanded)}
+                        >
+                          {isDescExpanded ? 'Ver menos' : 'Leer más...'}
+                        </button>
+                      )}
+                    </div>
                   )}
-                </div>
+                </>
               )}
             </div>
           </div>
-          
+
           <div className="td-invite-box">
             <span className="td-invite-label">CÓDIGO DE INVITACIÓN</span>
             <div className="td-code-group" onClick={() => handleCopyCode(selectedTournament.id)}>
@@ -291,13 +459,13 @@ const PrivateTournamentPage = () => {
             <h3><UserPlus size={18}/> Agregar Participante por Email</h3>
             <p>Como creador, puedes forzar la entrada de usuarios mediante su correo (ideal para compañeros que no saben usar códigos).</p>
             <form className="owner-add-form" onSubmit={handleAddMemberByEmail}>
-              <input 
-                type="email" 
+              <input
+                type="email"
                 className="input"
-                placeholder="email@ejemplo.com" 
-                value={addEmailBuf} 
-                onChange={(e) => setAddEmailBuf(e.target.value)} 
-                required 
+                placeholder="email@ejemplo.com"
+                value={addEmailBuf}
+                onChange={(e) => setAddEmailBuf(e.target.value)}
+                required
               />
               <button type="submit" className="btn-tourn btn-create" style={{ minWidth: '160px', padding: '12px 24px' }} disabled={actionLoading}>
                 {actionLoading ? 'Agregando...' : 'Agregar'}
@@ -306,6 +474,39 @@ const PrivateTournamentPage = () => {
             {actionMessage.text && <div className={`message-alert ${actionMessage.type}`} style={{marginTop: '12px'}}>{actionMessage.text}</div>}
           </div>
         )}
+
+        <div className="tournament-members-panel animate-fade-in">
+          <h3><Users size={18} /> Miembros <span className="members-count-chip">{memberList.length}</span></h3>
+          <ul className="members-list">
+            {memberList.map((email) => {
+              const isMemberOwner = email.toLowerCase() === ownerEmailLc;
+              const isSelf = email.toLowerCase() === user.email.toLowerCase();
+              const inFlight = removingMember.toLowerCase() === email.toLowerCase();
+              return (
+                <li key={email} className={`members-list-item ${isMemberOwner ? 'is-owner' : ''}`}>
+                  <div className="member-avatar">{email.charAt(0).toUpperCase()}</div>
+                  <span className="member-email">
+                    {email}
+                    {isSelf && <span className="rank-you-badge">Tú</span>}
+                    {isMemberOwner && <span className="owner-badge">Admin</span>}
+                  </span>
+                  {isOwner && !isMemberOwner && (
+                    <button
+                      type="button"
+                      className="member-remove-btn"
+                      onClick={() => handleRemoveMember(email)}
+                      disabled={inFlight}
+                      aria-label={`Sacar a ${email}`}
+                      title="Sacar del torneo"
+                    >
+                      {inFlight ? '...' : <UserMinus size={15} />}
+                    </button>
+                  )}
+                </li>
+              );
+            })}
+          </ul>
+        </div>
 
         <div className="ranking-container tournament-ranking animate-fade-in" style={{ marginTop: '56px' }}>
           <div className="ranking-header" style={{ marginBottom: '32px' }}>
@@ -373,6 +574,77 @@ const PrivateTournamentPage = () => {
             </div>
           )}
         </div>
+
+        {isOwner && (
+          <div className="tournament-danger-zone animate-fade-in">
+            <div className="danger-zone-info">
+              <h3><AlertTriangle size={18} /> Zona peligrosa</h3>
+              <p>Eliminar la liga es una acción permanente. Se pierde el ranking privado, los miembros y el código de invitación. Los pronósticos individuales de cada jugador no se borran.</p>
+            </div>
+            <button type="button" className="btn-danger" onClick={handleOpenDeleteModal}>
+              <Trash2 size={16} /> Eliminar liga
+            </button>
+          </div>
+        )}
+
+        <AnimatePresence>
+          {deleteModalOpen && (
+            <motion.div
+              className="confirm-modal-backdrop"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={(e) => e.target === e.currentTarget && !deleteLoading && setDeleteModalOpen(false)}
+              role="dialog"
+              aria-modal="true"
+              aria-label="Confirmar eliminación del torneo"
+            >
+              <motion.form
+                className="confirm-modal"
+                onSubmit={handleConfirmDelete}
+                initial={{ opacity: 0, scale: 0.9, y: 16 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.9, y: 16 }}
+                transition={{ type: 'spring', damping: 22, stiffness: 320 }}
+              >
+                <div className="confirm-modal-header">
+                  <h3><AlertTriangle size={20} /> Eliminar liga</h3>
+                  <button type="button" className="confirm-modal-close" onClick={() => !deleteLoading && setDeleteModalOpen(false)} aria-label="Cerrar">
+                    <X size={18} />
+                  </button>
+                </div>
+                <p className="confirm-modal-body">
+                  Esta acción no se puede deshacer. Para confirmar, escribí el nombre exacto del torneo:
+                </p>
+                <p className="confirm-modal-tname"><strong>{selectedTournament.name}</strong></p>
+                <input
+                  type="text"
+                  className="input"
+                  value={deleteConfirmText}
+                  onChange={(e) => setDeleteConfirmText(e.target.value)}
+                  placeholder="Escribí el nombre del torneo"
+                  autoFocus
+                  disabled={deleteLoading}
+                />
+                {actionMessage.type === 'error' && (
+                  <div className="message-alert error" style={{ marginTop: 8 }}>{actionMessage.text}</div>
+                )}
+                <div className="confirm-modal-actions">
+                  <button type="button" className="btn-ghost btn-tourn-sm" onClick={() => setDeleteModalOpen(false)} disabled={deleteLoading}>
+                    Cancelar
+                  </button>
+                  <button
+                    type="submit"
+                    className="btn-danger"
+                    disabled={deleteLoading || deleteConfirmText.trim() !== selectedTournament.name.trim()}
+                  >
+                    <Trash2 size={14} /> {deleteLoading ? 'Eliminando...' : 'Eliminar definitivamente'}
+                  </button>
+                </div>
+              </motion.form>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     );
   }

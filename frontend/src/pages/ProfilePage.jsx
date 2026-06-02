@@ -4,6 +4,7 @@ import { Trophy, CheckCircle2, Clock } from 'lucide-react';
 import { predictionsApi, matchesApi, rankingApi } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { TeamFlag } from '../utils/flags';
+import { calculatePoints, POINTS_EXACT } from '../utils/scoring';
 import './ProfilePage.css';
 
 const PHASE_LABELS = {
@@ -133,12 +134,14 @@ export default function ProfilePage() {
           {predictions.map((pred, i) => {
             const match = matchesMap[pred.match_id] || {};
             const isFinished = match.real_score_a !== null && match.real_score_a !== undefined;
-            const isCorrect = isFinished && pred.score_a === match.real_score_a && pred.score_b === match.real_score_b;
+            const pts = isFinished ? calculatePoints(pred, match) : null;
+            const isExact = pts === POINTS_EXACT;
+            const earned = pts !== null && pts > 0;
 
             return (
               <motion.div
                 key={`${pred.email}-${pred.match_id}`}
-                className={`pred-item ${isFinished ? (isCorrect ? 'pred-item--correct' : 'pred-item--wrong') : ''}`}
+                className={`pred-item ${isFinished ? (earned ? 'pred-item--correct' : 'pred-item--wrong') : ''}`}
                 initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: i * 0.025 }}
@@ -159,8 +162,10 @@ export default function ProfilePage() {
                 <div className="pred-item-status">
                   {!isFinished ? (
                     <span className="pred-pending"><Clock size={14} /> Pendiente</span>
-                  ) : isCorrect ? (
-                    <span className="pred-correct"><CheckCircle2 size={14} /> +3 pts</span>
+                  ) : earned ? (
+                    <span className="pred-correct">
+                      {isExact && <CheckCircle2 size={14} />} +{pts} pts
+                    </span>
                   ) : (
                     <span className="pred-wrong">0 pts</span>
                   )}

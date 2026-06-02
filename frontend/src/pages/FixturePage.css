@@ -295,3 +295,92 @@
   .phase-accordion-header { padding: 14px 16px; font-size: 0.9rem; }
   .match-score-display { min-width: 52px; }
 }
+
+/* ───────────── Leyenda del sistema de puntos ───────────── */
+.scoring-legend {
+  margin-top: 40px;
+  padding: 20px;
+  background: var(--color-surface-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.scoring-legend-title {
+  font-size: 0.9rem;
+  margin: 0 0 14px 0;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.scoring-legend-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 10px;
+}
+
+.scoring-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+}
+
+.scoring-legend-pts {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 1rem;
+  background: var(--color-surface-3);
+  color: var(--color-text-secondary);
+  border: 1px solid var(--color-border);
+}
+
+.scoring-legend-item--5 .scoring-legend-pts {
+  background: var(--color-green-dim);
+  color: var(--color-green);
+  border-color: rgba(34, 197, 94, 0.35);
+}
+.scoring-legend-item--4 .scoring-legend-pts {
+  background: var(--color-gold-dim);
+  color: var(--color-gold);
+  border-color: rgba(250, 204, 21, 0.4);
+}
+.scoring-legend-item--2 .scoring-legend-pts {
+  background: var(--color-blue-dim);
+  color: var(--color-blue);
+  border-color: rgba(59, 130, 246, 0.35);
+}
+.scoring-legend-item--0 .scoring-legend-pts {
+  background: var(--color-red-dim);
+  color: var(--color-red);
+  border-color: rgba(239, 68, 68, 0.3);
+}
+
+.scoring-legend-body {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.scoring-legend-label {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.scoring-legend-example {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}

@@ -48,6 +48,9 @@ export const tournamentsApi = {
   getAll: () => api.get('/tournaments/list'),
   join: (data) => api.post('/tournaments/join', data),
   getRanking: (id) => api.get(`/tournaments/ranking?id=${id}`),
+  update: (data) => api.post('/tournaments/update', data),
+  delete: (data) => api.post('/tournaments/delete', data),
+  removeMember: (data) => api.post('/tournaments/remove-member', data),
 };
 
 export default api;

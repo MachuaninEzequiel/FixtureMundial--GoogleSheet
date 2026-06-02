@@ -373,18 +373,6 @@ export default function SimulacionPage() {
         </>
       )}
 
-      <div className="playoff-legend" style={{ marginTop: 40, padding: 20, background: 'var(--color-surface-2)', borderRadius: 'var(--radius-md)', fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>
-        <h3 style={{ fontSize: '0.9rem', marginBottom: 12, color: 'var(--color-text-secondary)', textTransform: 'uppercase', letterSpacing: '1px' }}>Leyenda de Clasificatorias Pendientes</h3>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '8px 16px' }}>
-          <div><strong>UEFA 1:</strong> Italy vs. Northern Ireland / Wales vs. Bosnia and Herzegovina</div>
-          <div><strong>UEFA 2:</strong> Ukraine vs. Sweden / Poland vs. Albania</div>
-          <div><strong>UEFA 3:</strong> Turkey vs. Romania / Slovakia vs. Kosovo</div>
-          <div><strong>UEFA 4:</strong> Denmark vs. North Macedonia / Czech Republic vs. Ireland</div>
-          <div><strong>FIFA 1:</strong> Jamaica vs. New Caledonia - Congo</div>
-          <div><strong>FIFA 2:</strong> Bolivia vs. Suriname - Iraq</div>
-        </div>
-      </div>
-
       {selectedMatch && (
         <PredictionModal
           match={selectedMatch}
