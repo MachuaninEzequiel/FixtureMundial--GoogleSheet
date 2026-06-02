@@ -2,15 +2,17 @@ const { getSheetsClient } = require('./_lib/sheets');
 const { verifyToken } = require('./_lib/auth');
 
 // Fórmulas de ranking — se escriben en C, D, E de cada fila nueva del usuario.
-// Usan referencias absolutas ($) para que funcionen en cualquier fila.
+// Sistema de puntos (Opción B, mantener sincronizado con frontend/src/utils/scoring.js):
+//   5 pts marcador exacto · 4 pts ganador + diferencia · 2 pts solo ganador · 0 pts nada.
+// El total por pronóstico = exact + 2*sameDiff + 2*sameWinner.
 function rankingFormulas(rowNum) {
   return [
-    // C: total_points — 3 pts si el pronóstico exacto coincide con el resultado real
-    `=IF(A${rowNum}="","",SUMPRODUCT((predictions!$A$2:$A$5000=A${rowNum})*(predictions!$C$2:$C$5000=IFERROR(INDEX(matches!$I$2:$I$5000,MATCH(predictions!$B$2:$B$5000,matches!$A$2:$A$5000,0)),-999))*(predictions!$D$2:$D$5000=IFERROR(INDEX(matches!$J$2:$J$5000,MATCH(predictions!$B$2:$B$5000,matches!$A$2:$A$5000,0)),-999))*3))`,
+    // C: total_points — escala 5/4/2/0
+    `=IF(A${rowNum}="","",SUMPRODUCT(LET(pa,predictions!$C$2:$C$5000,pb,predictions!$D$2:$D$5000,ra,IFERROR(INDEX(matches!$I$2:$I$5000,MATCH(predictions!$B$2:$B$5000,matches!$A$2:$A$5000,0)),""),rb,IFERROR(INDEX(matches!$J$2:$J$5000,MATCH(predictions!$B$2:$B$5000,matches!$A$2:$A$5000,0)),""),fin,ISNUMBER(ra)*ISNUMBER(rb),usr,(predictions!$A$2:$A$5000=A${rowNum})*1,exact,IFERROR((pa=ra)*(pb=rb),0),sameDiff,IFERROR(((pa-pb)=(ra-rb))*1,0),sameWin,IFERROR((SIGN(pa-pb)=SIGN(ra-rb))*1,0),usr*fin*(exact+2*sameDiff+2*sameWin))))`,
     // D: total_predictions — total de pronósticos del usuario
     `=IF(A${rowNum}="","",COUNTIF(predictions!$A$2:$A$5000,A${rowNum}))`,
-    // E: correct_predictions — pronósticos exactamente correctos
-    `=IF(A${rowNum}="","",SUMPRODUCT((predictions!$A$2:$A$5000=A${rowNum})*(predictions!$C$2:$C$5000=IFERROR(INDEX(matches!$I$2:$I$5000,MATCH(predictions!$B$2:$B$5000,matches!$A$2:$A$5000,0)),-999))*(predictions!$D$2:$D$5000=IFERROR(INDEX(matches!$J$2:$J$5000,MATCH(predictions!$B$2:$B$5000,matches!$A$2:$A$5000,0)),-999))))`,
+    // E: correct_predictions — solo marcadores exactos (sobre partidos terminados)
+    `=IF(A${rowNum}="","",SUMPRODUCT(LET(pa,predictions!$C$2:$C$5000,pb,predictions!$D$2:$D$5000,ra,IFERROR(INDEX(matches!$I$2:$I$5000,MATCH(predictions!$B$2:$B$5000,matches!$A$2:$A$5000,0)),""),rb,IFERROR(INDEX(matches!$J$2:$J$5000,MATCH(predictions!$B$2:$B$5000,matches!$A$2:$A$5000,0)),""),fin,ISNUMBER(ra)*ISNUMBER(rb),usr,(predictions!$A$2:$A$5000=A${rowNum})*1,usr*fin*IFERROR((pa=ra)*(pb=rb),0))))`,
   ];
 }
 

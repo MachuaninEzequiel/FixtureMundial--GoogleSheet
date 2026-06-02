@@ -4,6 +4,7 @@ import { ChevronDown, Lock, TrendingUp, LayoutList, Network, Timer } from 'lucid
 import { matchesApi, predictionsApi } from '../services/api';
 import { TeamFlag } from '../utils/flags.jsx';
 import { useCountdown } from '../hooks/useCountdown';
+import { calculatePoints, pointsBadge, SCORING_LEGEND } from '../utils/scoring';
 import PredictionModal from '../components/PredictionModal/PredictionModal';
 import BracketView from '../components/BracketView/BracketView';
 import './FixturePage.css';
@@ -21,10 +22,7 @@ const PHASES = [
 ];
 
 function getOutcomeBadge(pred, match) {
-  if (!pred) return null;
-  if (match.real_score_a === null || match.real_score_a === undefined) return null;
-  if (pred.points_earned === 3) return { label: '+3 pts', cls: 'badge-green' };
-  return { label: '0 pts', cls: 'badge-red' };
+  return pointsBadge(calculatePoints(pred, match));
 }
 
 // Countdown display for a specific match
@@ -336,16 +334,19 @@ export default function FixturePage() {
         </AnimatePresence>
       )}
 
-      <div className="playoff-legend" style={{ marginTop: 40, padding: 20, background: 'var(--color-surface-2)', borderRadius: 'var(--radius-md)', fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>
-        <h3 style={{ fontSize: '0.9rem', marginBottom: 12, color: 'var(--color-text-secondary)', textTransform: 'uppercase', letterSpacing: '1px' }}>Leyenda de Clasificatorias Pendientes</h3>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '8px 16px' }}>
-          <div><strong>UEFA 1:</strong> Italy vs. Northern Ireland / Wales vs. Bosnia and Herzegovina</div>
-          <div><strong>UEFA 2:</strong> Ukraine vs. Sweden / Poland vs. Albania</div>
-          <div><strong>UEFA 3:</strong> Turkey vs. Romania / Slovakia vs. Kosovo</div>
-          <div><strong>UEFA 4:</strong> Denmark vs. North Macedonia / Czech Republic vs. Ireland</div>
-          <div><strong>FIFA 1:</strong> Jamaica vs. New Caledonia - Congo</div>
-          <div><strong>FIFA 2:</strong> Bolivia vs. Suriname - Iraq</div>
-        </div>
+      <div className="scoring-legend" aria-label="Sistema de puntos">
+        <h3 className="scoring-legend-title">Sistema de puntos</h3>
+        <ul className="scoring-legend-list">
+          {SCORING_LEGEND.map((item) => (
+            <li key={item.points} className={`scoring-legend-item scoring-legend-item--${item.points}`}>
+              <span className="scoring-legend-pts">{item.points}</span>
+              <div className="scoring-legend-body">
+                <span className="scoring-legend-label">{item.label}</span>
+                <span className="scoring-legend-example">{item.example}</span>
+              </div>
+            </li>
+          ))}
+        </ul>
       </div>
 
       <AnimatePresence>
