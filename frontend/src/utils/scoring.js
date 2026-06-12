@@ -4,8 +4,8 @@
 //   2 pts  solo ganador (o empate)
 //   0 pts  no le pegó a nada
 //
-// Mantener sincronizado con las fórmulas SUMPRODUCT de la hoja `ranking`
-// (api/sync-user.js y scripts/update-ranking-formulas.js).
+// Mantener sincronizado con el espejo backend api/_lib/scoring.js
+// (los totales del ranking se calculan ahí, en api/_lib/ranking.js).
 
 export const POINTS_EXACT = 5;
 export const POINTS_DIFF = 4;
