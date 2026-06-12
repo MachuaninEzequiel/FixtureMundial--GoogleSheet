@@ -1,5 +1,6 @@
 const { getSheetsClient } = require('../_lib/sheets');
 const { verifyToken } = require('../_lib/auth');
+const { computeRanking } = require('../_lib/ranking');
 
 /**
  * GET /api/tournaments/ranking?id=CODE
@@ -52,29 +53,10 @@ module.exports = async (req, res) => {
       ownerEmail: tRow[3],
     };
 
-    // 2. Read Global Ranking
-    const { data: rData } = await sheets.spreadsheets.values.get({
-      spreadsheetId: process.env.SHEET_ID,
-      range: 'ranking!A2:E', // email | username | pts | total_pred | correct_pred
-    });
-
-    const rRows = rData.values || [];
-
-    // Filter global ranking rows to only keep members of THIS tournament
-    const ranking = rRows
-      .filter(row => row[0] && membersList.includes(row[0].toLowerCase()))
-      .map(row => ({
-        email: row[0] || '',
-        username: row[1] || '',
-        total_points: Number(row[2] || 0),
-        total_predictions: Number(row[3] || 0),
-        correct_predictions: Number(row[4] || 0),
-      }))
-      .sort((a, b) =>
-        b.total_points - a.total_points ||
-        b.correct_predictions - a.correct_predictions ||
-        a.username.localeCompare(b.username)
-      )
+    // 2. Compute the global ranking in code (already sorted) and keep only
+    //    members of THIS tournament, re-numbering positions within the league
+    const ranking = (await computeRanking(sheets))
+      .filter((entry) => membersList.includes(entry.email.toLowerCase()))
       .map((entry, i) => ({ ...entry, position: i + 1 }));
 
     return res.json({

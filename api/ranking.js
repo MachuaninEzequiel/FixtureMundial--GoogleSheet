@@ -1,9 +1,11 @@
 const { getSheetsClient } = require('./_lib/sheets');
+const { computeRanking } = require('./_lib/ranking');
 
 /**
  * GET /api/ranking
- * Public endpoint — reads the 'ranking' sheet which is populated by
- * native Google Sheets formulas (no code calculations).
+ * Public endpoint — computes the ranking in code (scale 5/4/2/0) from the
+ * `predictions` and `matches` sheets. The `ranking` sheet only provides the
+ * user registry (email + username).
  */
 module.exports = async (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -13,28 +15,7 @@ module.exports = async (req, res) => {
 
   try {
     const sheets = getSheetsClient();
-    const { data } = await sheets.spreadsheets.values.get({
-      spreadsheetId: process.env.SHEET_ID,
-      range: 'ranking!A2:E', // email | username | total_points | total_predictions | correct_predictions
-    });
-
-    const rows = data.values || [];
-
-    // Filter out empty rows (Google Sheets formulas may produce empty rows)
-    const ranking = rows
-      .filter((row) => row[0] && row[1])
-      .map((row) => ({
-        email: row[0] || '',
-        username: row[1] || '',
-        total_points: Number(row[2] || 0),
-        total_predictions: Number(row[3] || 0),
-        correct_predictions: Number(row[4] || 0),
-      }))
-      .sort((a, b) =>
-        b.total_points - a.total_points ||
-        b.correct_predictions - a.correct_predictions ||
-        a.username.localeCompare(b.username)
-      )
+    const ranking = (await computeRanking(sheets))
       .map((entry, i) => ({ ...entry, position: i + 1 }));
 
     return res.json(ranking);
